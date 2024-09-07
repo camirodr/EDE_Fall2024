@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Camila Rodriguez"
 output: pdf_document
 ---
 
@@ -22,22 +22,22 @@ Enter answers to the questions just below the >Answer: prompt.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: I do not have previous experience with R and Git. I have experience with data manipulation from working with GIS before but no coding or Git.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: I feel confident in my ability to apply creativity to projects and assignments due to my background in environmental issues, public health and other relevant fields to environmental analytics.  
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: Since I don't have background in coding or cloud based servers like Github, I worry it will be hard for me to grasp abstract concepts (clouds, backups, commit functions etc). I like to understand thoroughly the tools/websites/programs I work with and worry I will have a bit of difficulty understanding how RStudio and Github operate since it is learned abtractly. I would like to reach a point that I can explain it to someone else and be confident in my abiltiy to do so. 
 
 
 ## 2) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository and that you have updated your course README file, committed those changes, and pushed them to your GitHub account. 
 
-> Answer: 
+> Answer: https://github.com/camirodr/EDE_Fall2024
 
 ## 3) Knitting
 When you have completed this document, click the `knit` button.This should produce a PDF copy of your markdown document. Submit this PDF to Canvas 
