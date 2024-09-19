@@ -135,5 +135,4 @@ larger_than_fifty_version2(grades)
 
 > Answer: Since most of R funcitons are vectorized, "ifelse" is used for vector based calculations. "If...else" is not vectorized, making it more prone to errors while running. Operations under "ifelse" occur on an element by element basis, allowing for smoother calculations compared to "if... else" which may cause more errors.   
 
-
 **NOTE** Before knitting, you'll need to comment out the call to the function in Q13 that does not work. (A document can't knit if the code it contains causes an error!)
