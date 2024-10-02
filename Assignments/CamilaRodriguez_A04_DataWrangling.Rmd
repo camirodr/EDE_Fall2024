@@ -47,16 +47,32 @@ getwd()
 
 #1c 
 
-EPA_2018_ozone<- here('Data/Raw/EPAair_O3_NC2018_raw.csv'); stringAsFactors=TRUE 
-EPA_2019_ozone<- here('Data/Raw/EPAair_O3_NC2019_raw.csv'); stringAsFactors=TRUE
-EPA_2018_PM25 <- here('Data/Raw/EPAair_PM25_NC2018_raw.csv'); stringAsFactors=TRUE
-EPA_2019_PM25 <- here('Data/Raw/EPAair_PM25_NC2019_raw.csv'); stringAsFactors=TRUE
+EPA_2018_ozone <- read.csv(file=here("Data/Raw/EPAair_O3_NC2018_raw.csv"), 
+  stringsAsFactors=TRUE
+  
+)
 
-read.csv(EPA_2018_ozone)
-read.csv(EPA_2019_ozone)
-read.csv(EPA_2018_PM25)
-read.csv(EPA_2019_PM25)
 
+EPA_2019_ozone <- read.csv(file=here("Data/Raw/EPAair_O3_NC2019_raw.csv"), 
+    stringsAsFactors=TRUE
+  
+)
+
+EPA_2018_PM25 <- read.csv(file=here("Data/Raw/EPAair_PM25_NC2018_raw.csv"), 
+    stringsAsFactors=TRUE
+  
+)
+
+EPA_2019_PM25 <- read.csv(file=here("Data/Raw/EPAair_PM25_NC2019_raw.csv"), 
+    stringsAsFactors=TRUE
+)
+
+EPA_2018_ozone
+EPA_2019_ozone
+EPA_2018_PM25
+EPA_2019_PM25
+
+here()
 
 
 #2 
@@ -71,11 +87,13 @@ dim(EPA_2019_PM25)
 ```
 
 >All four datasets should have the same number of columns but unique record counts (rows). Do your datasets follow this pattern?
+Yes they follow this pattern, they have different rows but same column numbers
 
 
 ## Wrangle individual datasets to create processed files.
 
 3. Change the Date columns to be date objects.
+
 
 4. Select the following columns: Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE
 
@@ -86,14 +104,44 @@ dim(EPA_2019_PM25)
 ```{r questions 3 thru 4}
 #3
 
+class(EPA_2018_ozone$Date)
+class(EPA_2019_ozone$Date)
+class(EPA_2018_PM25$Date)
+class(EPA_2019_PM25$Date)
+
+EPA_2018_ozone$Date<- as.Date(EPA_2018_ozone$Date, format='%m/%d/%Y')
+EPA_2019_ozone$Date<- as.Date(EPA_2019_ozone$Date, format='%m/%d/%Y')
+EPA_2018_PM25$Date<- as.Date(EPA_2018_PM25$Date, format='%m/%d/%Y')
+EPA_2019_PM25$Date<- as.Date(EPA_2019_PM25$Date, format='%m/%d/%Y')
+
+
 
 #4
+
+
+EPA_2018_ozone_parameters<- select(EPA_2018_ozone, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY:SITE_LONGITUDE)
+EPA_2019_ozone_parameters<-select(EPA_2019_ozone,Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY: SITE_LONGITUDE)
+EPA_2018_PM25_parameters<- select(EPA_2018_PM25, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY: SITE_LONGITUDE)
+EPA_2019_PM25_parameters<- select(EPA_2019_PM25,Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY: SITE_LONGITUDE)
 
 
 #5
 
 
+EPA_2018_PM25_parameters<- mutate(EPA_2018_PM25_parameters, AQS_PARAMETER_DESC = "PM2.5") 
+EPA_2019_PM25_parameters<- mutate(EPA_2019_PM25_parameters, AQS_PARAMETER_DESC = "PM2.5") 
+
+
+
 #6
+
+
+
+write.csv(EPA_2018_PM25_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_PM25_NC2018_Processed.csv")
+write.csv(EPA_2019_PM25_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_PM25_NC2019_Processed.csv")
+write.csv(EPA_2018_ozone_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_O3_NC2018_Processed.csv")
+write.csv(EPA_2019_ozone_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_O3_NC2019_Processed.csv")
+
 
 ```
 
@@ -118,6 +166,7 @@ dim(EPA_2019_PM25)
   * Add columns for "Month" and "Year" by parsing your "Date" column (hint: `lubridate` package)
   
   * Hint: the dimensions of this dataset should be 14,752 x 9.
+  
 
 9. Spread your datasets such that AQI values for ozone and PM2.5 are in separate columns. Each location on a specific date should now occupy only one row.
 
@@ -128,11 +177,61 @@ dim(EPA_2019_PM25)
 ```{r questions 7 thru 11}
 #7 
 
+EPA_2018_PM25_parameters_processed<- read.csv(
+  "./Data/Processed/EPAair_PM25_NC2018_Processed.csv")
+EPA_2019_PM25_parameters_processed<- read.csv(
+  "./Data/Processed/EPAair_PM25_NC2019_Processed.csv")
+EPA_2018_ozone_parameters_processed<- read.csv(
+  "./Data/Processed/EPAair_O3_NC2018_Processed.csv")
+EPA_2019_ozone_parameters_processed<- read.csv(
+  "./Data/Processed/EPAair_O3_NC2019_Processed.csv")
+
+
+Airpollution_18_19 <- rbind(EPA_2018_PM25_parameters_processed, 
+EPA_2019_PM25_parameters_processed,
+EPA_2018_ozone_parameters_processed,EPA_2019_ozone_parameters_processed
+)
 
 #8 
 
+#* Some sites have multiple measurements per day. Use the split-apply-combine strategy to generate daily means: group by date, site name, AQS parameter, and county. Take the mean of the AQI value, latitude, and longitude.
+  
+  #Add columns for "Month" and "Year" by parsing your "Date" column (hint: `lubridate` package)
+  
+  #Hint: the dimensions of this dataset should be 14,752 x 9.
+  
+
+Airpollution_18_19_selected <- Airpollution_18_19 %>%
+  filter(
+    Site.Name %in% "Linville Falls",
+    "Durham Armory",
+    "Leggett",
+    "Hattie Avenue",
+    "Clemmons Middle",
+    "Mendenhall School",
+    "Frying Pan Mountain",
+    "West Johnston Co.",
+    "Garinger High School",
+    "Castle Hayne",
+    "Pitt Agri. Center",
+    "Bryson City",
+    "Millbrook School"
+  ) %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% summarise(
+    meanAQI = mean(DAILY_AQI_VALUE),
+    meanLONG = mean(SITE_LONGITUDE),
+    meanLAT = mean(SITE_LATITUDE),
+    mutate(month = month(Date)) %>% mutate(year = year(Date)
+    )
+  )
+           
+
+
+
 
 #9
+
+
 
 
 #10
