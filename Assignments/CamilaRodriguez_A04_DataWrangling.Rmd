@@ -67,10 +67,6 @@ EPA_2019_PM25 <- read.csv(file=here("Data/Raw/EPAair_PM25_NC2019_raw.csv"),
     stringsAsFactors=TRUE
 )
 
-EPA_2018_ozone
-EPA_2019_ozone
-EPA_2018_PM25
-EPA_2019_PM25
 
 here()
 
@@ -118,29 +114,39 @@ EPA_2019_PM25$Date<- as.Date(EPA_2019_PM25$Date, format='%m/%d/%Y')
 
 #4
 
-
-EPA_2018_ozone_parameters<- select(EPA_2018_ozone, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY:SITE_LONGITUDE)
-EPA_2019_ozone_parameters<-select(EPA_2019_ozone,Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY: SITE_LONGITUDE)
-EPA_2018_PM25_parameters<- select(EPA_2018_PM25, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY: SITE_LONGITUDE)
-EPA_2019_PM25_parameters<- select(EPA_2019_PM25,Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY: SITE_LONGITUDE)
+EPA_2018_ozone_parameters<- select(EPA_2018_ozone, Date, DAILY_AQI_VALUE, 
+                                   Site.Name, AQS_PARAMETER_DESC, COUNTY:
+                                     SITE_LONGITUDE)
+EPA_2019_ozone_parameters<-select(EPA_2019_ozone,Date, DAILY_AQI_VALUE, 
+                                  Site.Name, AQS_PARAMETER_DESC, COUNTY: 
+                                    SITE_LONGITUDE)
+EPA_2018_PM25_parameters<- select(EPA_2018_PM25, Date, DAILY_AQI_VALUE, 
+                                  Site.Name, AQS_PARAMETER_DESC, COUNTY: 
+                                    SITE_LONGITUDE)
+EPA_2019_PM25_parameters<- select(EPA_2019_PM25,Date, DAILY_AQI_VALUE, 
+                                  Site.Name, AQS_PARAMETER_DESC, COUNTY: 
+                                    SITE_LONGITUDE)
 
 
 #5
 
-
-EPA_2018_PM25_parameters<- mutate(EPA_2018_PM25_parameters, AQS_PARAMETER_DESC = "PM2.5") 
-EPA_2019_PM25_parameters<- mutate(EPA_2019_PM25_parameters, AQS_PARAMETER_DESC = "PM2.5") 
+EPA_2018_PM25_parameters<- mutate(EPA_2018_PM25_parameters, 
+                                  AQS_PARAMETER_DESC = "PM2.5") 
+EPA_2019_PM25_parameters<- mutate(EPA_2019_PM25_parameters, 
+                                  AQS_PARAMETER_DESC = "PM2.5") 
 
 
 
 #6
 
-
-
-write.csv(EPA_2018_PM25_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_PM25_NC2018_Processed.csv")
-write.csv(EPA_2019_PM25_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_PM25_NC2019_Processed.csv")
-write.csv(EPA_2018_ozone_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_O3_NC2018_Processed.csv")
-write.csv(EPA_2019_ozone_parameters, row.names = FALSE, file = "./Data/Processed/EPAair_O3_NC2019_Processed.csv")
+write.csv(EPA_2018_PM25_parameters, row.names = FALSE, file =
+            "./Data/Processed/EPAair_PM25_NC2018_Processed.csv")
+write.csv(EPA_2019_PM25_parameters, row.names = FALSE, file = 
+            "./Data/Processed/EPAair_PM25_NC2019_Processed.csv")
+write.csv(EPA_2018_ozone_parameters, row.names = FALSE, file = 
+            "./Data/Processed/EPAair_O3_NC2018_Processed.csv")
+write.csv(EPA_2019_ozone_parameters, row.names = FALSE, file = 
+            "./Data/Processed/EPAair_O3_NC2019_Processed.csv")
 
 
 ```
@@ -194,16 +200,9 @@ EPA_2018_ozone_parameters_processed,EPA_2019_ozone_parameters_processed
 
 #8 
 
-#* Some sites have multiple measurements per day. Use the split-apply-combine strategy to generate daily means: group by date, site name, AQS parameter, and county. Take the mean of the AQI value, latitude, and longitude.
-  
-  #Add columns for "Month" and "Year" by parsing your "Date" column (hint: `lubridate` package)
-  
-  #Hint: the dimensions of this dataset should be 14,752 x 9.
-  
-
 Airpollution_18_19_selected <- Airpollution_18_19 %>%
   filter(
-    Site.Name %in% "Linville Falls",
+    Site.Name %in% c("Linville Falls",
     "Durham Armory",
     "Leggett",
     "Hattie Avenue",
@@ -216,29 +215,29 @@ Airpollution_18_19_selected <- Airpollution_18_19 %>%
     "Pitt Agri. Center",
     "Bryson City",
     "Millbrook School"
-  ) %>%
+  )) %>%
   group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% summarise(
     meanAQI = mean(DAILY_AQI_VALUE),
     meanLONG = mean(SITE_LONGITUDE),
-    meanLAT = mean(SITE_LATITUDE),
+    meanLAT = mean(SITE_LATITUDE)) %>% 
     mutate(month = month(Date)) %>% mutate(year = year(Date)
     )
-  )
-           
-
-
-
-
+  
 #9
 
-
+Airpollution_18_19_selected_spread <- pivot_wider(Airpollution_18_19_selected, 
+names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
 
 
 #10
 
+dim(Airpollution_18_19_selected_spread)
+
 
 #11
 
+write.csv(Airpollution_18_19_selected_spread, row.names = FALSE, file =
+            "./Data/Processed/EPAair_O3_NC2019_Processed_spread.csv")
 
 ```
 
@@ -253,14 +252,28 @@ Airpollution_18_19_selected <- Airpollution_18_19 %>%
 
 #12
 
+Airpollution_18_19_summary <- 
+  Airpollution_18_19_selected_spread %>% group_by(Site.Name,month,year) %>% 
+  summarise(mean_AQI_PM2.5=mean(PM2.5), mean_AQUI_Ozone=mean(Ozone)) %>% 
+  drop_na(mean_AQUI_Ozone)
+
+## when omit.na function is used instead of drop.na function, there are less rows
+
 
 #13
 
-
+dim(Airpollution_18_19_summary)
 
 ```
 
-14. Why did we use the function `drop_na` rather than `na.omit`? Hint: replace `drop_na` with `na.omit` in part 12 and observe what happens with the dimensions of the summary date frame.
+14. Why did we use the function `drop_na` rather than `na.omit`? Hint: replace 
+`drop_na` with `na.omit` in part 12 and observe what happens with the dimensions
+of the summary date frame.
 
 > Answer: 
 
+>The omit.na function results in 101 rows, but has the same number of columns 
+as when I use the drop_na function. The omit.na function removes rows where there
+is missing data in ANY cell in that row, which could result in unintended data 
+loss. We only want to remove data from cells IN the Ozone column that has 
+a N/A value. 
