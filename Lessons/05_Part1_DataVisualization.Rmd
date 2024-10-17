@@ -5,8 +5,12 @@ date: "Fall 2024"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: console
+chunk_output_type: console
+
 ---
+\listoffigures
+
+
 
 ## Objectives
 1. Perform simple data visualizations in the R package `ggplot`
@@ -74,6 +78,7 @@ Here are some commonly used aesthetic types that can be manipulated in ggplot:
 * shape
 * size
 * transparency
+\newpage 
 
 ### Plotting continuous variables over time: Scatterplot and Line Plot
 
